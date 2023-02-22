@@ -57,6 +57,10 @@ Future<String> _downloadCast(CastInfo castInfo) async {
 
 //The argument is a shorten URL like "https://u8kv3.app.goo.gl/Q4izq".
 Future<CastInfo> _downloadCastFromURL(String shortenURL) async {
+  if (!shortenURL.startsWith("https://u8kv3.app.goo.gl/")) {
+    throw ArgumentError("Invalid URL.");
+  }
+
   final castID = await _getCastID(shortenURL);
   debugPrint(castID);
 
@@ -84,6 +88,8 @@ enum _DownloadProgress { notInProgress, inProgress, completed, failed }
 
 class _CastDownloaderState extends State<CastDownloader> {
   _DownloadProgress isDownloading = _DownloadProgress.notInProgress;
+  String failureReason = "";
+
   String input = "";
 
   @override
@@ -127,8 +133,10 @@ class _CastDownloaderState extends State<CastDownloader> {
                                 _DownloadProgress.completed);
                           } catch (e) {
                             debugPrint(e.toString());
-                            this.setState(() =>
-                                this.isDownloading = _DownloadProgress.failed);
+                            this.setState(() {
+                              this.isDownloading = _DownloadProgress.failed;
+                              this.failureReason = e.toString();
+                            });
                           }
                         }),
             ],
@@ -143,7 +151,8 @@ class _CastDownloaderState extends State<CastDownloader> {
               ],
             ),
           if (this.isDownloading == _DownloadProgress.completed) Text("Done."),
-          if (this.isDownloading == _DownloadProgress.failed) Text("Failed."),
+          if (this.isDownloading == _DownloadProgress.failed)
+            Text("Failed: ${this.failureReason}"),
         ],
       ),
     );
