@@ -5,6 +5,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
+import 'cast_info.dart';
 import 'cast_list.dart';
 
 /*-------------------------------------*/
@@ -55,16 +56,19 @@ class CastListView extends StatelessWidget {
     return Consumer<CastList>(
       builder: (_context, castFiles, _child) {
         return ListView(
-            children: castFiles.l.map((e) {
-          final baseName = e.replaceFirst(RegExp(".*/"), "");
+            children: castFiles.l.map((CastInfo e) {
+          final baseName = e.filePath!.replaceFirst(RegExp(".*/"), "");
           return Card(
               child: ListTile(
-                  title: Text(baseName),
+                  title: Text(e.title),
+                  trailing: Text(e.author,
+                      style: TextStyle(color: Colors.grey, fontSize: 13)),
                   onTap: () {
                     final p = Provider.of<_Player>(context, listen: false);
-                    p.player.setAudioSource(AudioSource.uri(Uri.file(e),
-                        tag: MediaItem(title: baseName, id: e)));
-                    p.setLastSetFile(e);
+                    p.player.setAudioSource(AudioSource.uri(
+                        Uri.file(e.filePath!),
+                        tag: MediaItem(title: e.title, id: e.id)));
+                    p.setLastSetFile(e.filePath!);
                     p.player.play();
                   }));
         }).toList());

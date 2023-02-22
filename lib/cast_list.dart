@@ -1,18 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
+
+import 'cast_downloader.dart';
+import 'cast_info.dart';
 
 class CastList extends ChangeNotifier {
-  List<String> _l = [];
+  static const String tableName = "casts";
 
-  CastList() {
-    this.update();
+  late final Future<Database> _db;
+  List<CastInfo> _l = [];
+
+  CastList(String databasePath) {
+    this._openDatabase(databasePath).whenComplete(() async {
+      this._l = await this._selectAll();
+      notifyListeners();
+    });
   }
 
-  List<String> get l => this._l;
+  List<CastInfo> get l => this._l;
 
-  Future<void> update() async {
-    final appDocDir = await getApplicationDocumentsDirectory();
-    this._l = appDocDir.listSync().map((e) => e.path).toList();
+  Future<void> _openDatabase(String databaseFile) async {
+    final databasePath = join(await getDatabasesPath(), databaseFile);
+    this._db = openDatabase(
+      databasePath,
+      onCreate: (db, version) {
+        return db.execute(
+          '''
+            CREATE TABLE ${CastList.tableName}(
+                id             TEXT PRIMARY KEY,
+                author         TEXT,
+                title          TEXT,
+                voiceURL       TEXT,
+                fileExtension  TEXT,
+                filePath       TEXT,
+                downloadedDate REAL
+            )
+          ''',
+        );
+      },
+      version: 1,
+    );
+  }
+
+  Future<void> insert(CastInfo castInfo) async {
+    final db = await this._db;
+    await db.insert(
+      CastList.tableName,
+      castInfo.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    this._l = await this._selectAll();
+
     notifyListeners();
+  }
+
+  Future<List<CastInfo>> _selectAll() async {
+    final db = await this._db;
+    final List<Map<String, dynamic>> m = await db.query(CastList.tableName);
+    return m.map((m) {
+      var castInfo = CastInfo(
+        id: m["id"],
+        author: m["author"],
+        title: m["title"],
+        voiceURL: m["voiceURL"],
+        fileExtension: m["fileExtension"],
+        downloadedDate: DateTime.parse(m["downloadedDate"]),
+      );
+      castInfo.filePath = m["filePath"];
+      return castInfo;
+    }).toList();
   }
 }

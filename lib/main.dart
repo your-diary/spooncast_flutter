@@ -43,7 +43,7 @@ class W extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_context) => CastList(),
+      create: (_context) => CastList("main.db"),
       child: DefaultTabController(
         initialIndex: 0,
         length: 3,

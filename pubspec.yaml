@@ -40,6 +40,8 @@ dependencies:
   path_provider: ^2.0.12
   provider: ^6.0.5
   just_audio_background: ^0.0.1-beta.9
+  sqflite: ^2.2.4+1
+  path: ^1.8.2
 
 dev_dependencies:
   flutter_test:

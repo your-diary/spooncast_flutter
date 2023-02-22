@@ -6,30 +6,10 @@ import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'cast_info.dart';
 import 'cast_list.dart';
 
 /*-------------------------------------*/
-
-class _CastInfo {
-  final String id;
-  final String author;
-  final String title;
-  final String voiceURL;
-  final String fileExtension;
-
-  _CastInfo({
-    required this.id,
-    required this.author,
-    required this.title,
-    required this.voiceURL,
-    required this.fileExtension,
-  });
-
-  @override
-  String toString() {
-    return "CastInfo(id = ${this.id}, author = ${this.author}, title = ${this.title}, voiceURL = ${this.voiceURL}, fileExtension = ${this.fileExtension})";
-  }
-}
 
 Future<String> _getCastID(String shortenURL) async {
   final client = Client();
@@ -49,40 +29,43 @@ Future<String> _getCastID(String shortenURL) async {
       .group(1)!;
 }
 
-Future<_CastInfo> _getCastInfo(String castID) async {
+Future<CastInfo> _getCastInfo(String castID) async {
   final uri = Uri.parse("https://jp-api.spooncast.net/casts/${castID}/");
   final res = await get(uri);
   assert(res.statusCode == 200);
   final m = jsonDecode(utf8.decode(res.bodyBytes));
-  return _CastInfo(
+  return CastInfo(
     id: castID,
     author: m["results"][0]["author"]["nickname"],
     title: m["results"][0]["title"],
     voiceURL: m["results"][0]["voice_url"],
     fileExtension:
         m["results"][0]["voice_url"].replaceFirst(RegExp(r".*\."), ""),
+    downloadedDate: DateTime.now(),
   );
 }
 
-Future<void> _downloadCast(_CastInfo castInfo) async {
+Future<String> _downloadCast(CastInfo castInfo) async {
   final uri = Uri.parse(castInfo.voiceURL);
   final res = await get(uri);
   assert(res.statusCode == 200);
   final appDocDir = (await getApplicationDocumentsDirectory()).path;
-  await File("${appDocDir}/${castInfo.id}.${castInfo.fileExtension}")
-      .writeAsBytes(res.bodyBytes);
+  final path = "${appDocDir}/${castInfo.id}.${castInfo.fileExtension}";
+  await File(path).writeAsBytes(res.bodyBytes);
+  return path;
 }
 
 //The argument is a shorten URL like "https://u8kv3.app.goo.gl/Q4izq".
-Future<_CastInfo> _downloadCastFromURL(String shortenURL) async {
+Future<CastInfo> _downloadCastFromURL(String shortenURL) async {
   final castID = await _getCastID(shortenURL);
   debugPrint(castID);
 
   final castInfo = await _getCastInfo(castID);
   debugPrint(castInfo.toString());
 
-  await _downloadCast(castInfo);
+  final filePath = await _downloadCast(castInfo);
 
+  castInfo.filePath = filePath;
   return castInfo;
 }
 
@@ -136,9 +119,10 @@ class _CastDownloaderState extends State<CastDownloader> {
                           this.setState(() => this.isDownloading =
                               _DownloadProgress.inProgress);
                           try {
-                            await _downloadCastFromURL(this.input);
+                            final castInfo =
+                                await _downloadCastFromURL(this.input);
                             await Provider.of<CastList>(context, listen: false)
-                                .update();
+                                .insert(castInfo);
                             this.setState(() => this.isDownloading =
                                 _DownloadProgress.completed);
                           } catch (e) {
