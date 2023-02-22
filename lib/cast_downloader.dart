@@ -25,7 +25,7 @@ Future<String> _getCastID(String shortenURL) async {
   assert(res.isRedirect);
   assert(res.headers.containsKey("location"));
 
-  return RegExp(r"https://spooncast.net/jp/cast/(\d+)")
+  return RegExp(r"spooncast.net/jp/cast/(\d+)")
       .firstMatch(res.headers["location"]!)!
       .group(1)!;
 }
@@ -127,8 +127,17 @@ class _CastDownloaderState extends State<CastDownloader> {
               Expanded(
                   child: TextField(
                 controller: this.textEditingContoller,
+                keyboardType: TextInputType.url,
                 maxLines: null,
-                onChanged: (s) => this.setState(() => this.input = s.trim()),
+                onChanged: (s) => this.setState(() {
+                  //Why splits and takes the last?
+                  //The reason is when you copy a shorten URL from iOS app rather than web version, the copied content consists of a trailing explanation and a URL.
+                  //Let user manually extract a URL is tedious, so we automate it.
+                  this.input = s.trim();
+                  if (!this.input.isEmpty) {
+                    this.input = this.input.split(RegExp(r"\s")).last;
+                  }
+                }),
                 decoration: InputDecoration(
                   hintText: 'URL',
                   suffixIcon: IconButton(

@@ -246,8 +246,18 @@ class _PlayControllerState extends State<_PlayController>
                   onPressed: () async {
                     if (p.player.loopMode == LoopMode.off) {
                       await p.player.setLoopMode(LoopMode.one);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Enabled loop playback.",
+                              style: TextStyle(color: Colors.black)),
+                          backgroundColor: Colors.grey,
+                          duration: Duration(seconds: 1)));
                     } else {
                       await p.player.setLoopMode(LoopMode.off);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Disabled loop playback.",
+                              style: TextStyle(color: Colors.black)),
+                          backgroundColor: Colors.grey,
+                          duration: Duration(seconds: 1)));
                     }
                     this.setState(() {});
                   }),
