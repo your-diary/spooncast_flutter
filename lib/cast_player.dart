@@ -23,7 +23,7 @@ class _Player extends ChangeNotifier {
 /*-------------------------------------*/
 
 class CastPlayer extends StatelessWidget {
-  CastPlayer({
+  const CastPlayer({
     super.key,
   });
 
@@ -54,10 +54,9 @@ class CastListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<CastList>(
-      builder: (_context, castFiles, _child) {
+      builder: (context, castFiles, child) {
         return ListView(
             children: castFiles.l.map((CastInfo e) {
-          final baseName = e.filePath!.replaceFirst(RegExp(".*/"), "");
           return Card(
               child: ListTile(
                   title: Text(e.title),
@@ -91,12 +90,10 @@ String _prettyPrintDuration(Duration d) {
       seconds.toString().padLeft(2, "0");
 }
 
-enum _PlayerState { noData, playing, paused, completed }
+enum _PlayerState { playing, paused, completed }
 
 class _PlayController extends StatefulWidget {
-  const _PlayController({
-    super.key,
-  });
+  const _PlayController();
 
   @override
   State<_PlayController> createState() => _PlayControllerState();
@@ -113,6 +110,7 @@ class _PlayControllerState extends State<_PlayController>
 
   @override
   void initState() {
+    super.initState();
     this.timer =
         Timer.periodic(Duration(seconds: this.updateIntervalSec), (Timer t) {
       this.setState(() {});
@@ -141,7 +139,7 @@ class _PlayControllerState extends State<_PlayController>
       playerState = _PlayerState.playing;
     }
 
-    final progressBarWidth = 350.0;
+    const progressBarWidth = 350.0;
 
     return Padding(
       padding: const EdgeInsets.all(10),
@@ -150,7 +148,7 @@ class _PlayControllerState extends State<_PlayController>
           Text(p.lastSetFile!.title),
           Text(p.lastSetFile!.author),
           SizedBox(height: 10),
-          Container(
+          SizedBox(
             width: progressBarWidth,
             height: 10,
             child: InkWell(

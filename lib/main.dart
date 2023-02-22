@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:http/http.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'cast_downloader.dart';
@@ -43,7 +36,7 @@ class W extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_context) => CastList("main.db"),
+      create: (context) => CastList("main.db"),
       child: DefaultTabController(
         initialIndex: 0,
         length: 3,

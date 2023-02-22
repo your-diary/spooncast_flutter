@@ -144,8 +144,11 @@ class _CastDownloaderState extends State<CastDownloader> {
                           try {
                             final castInfo =
                                 await _downloadCastFromURL(this.input);
-                            await Provider.of<CastList>(context, listen: false)
-                                .insert(castInfo);
+                            if (context.mounted) {
+                              await Provider.of<CastList>(context,
+                                      listen: false)
+                                  .insert(castInfo);
+                            }
                             this.setState(() => this.isDownloading =
                                 _DownloadProgress.completed);
                           } catch (e) {
