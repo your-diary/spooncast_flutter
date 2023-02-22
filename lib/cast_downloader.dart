@@ -90,6 +90,8 @@ class _CastDownloaderState extends State<CastDownloader> {
   _DownloadProgress isDownloading = _DownloadProgress.notInProgress;
   String failureReason = "";
 
+  final textEditingContoller = TextEditingController();
+
   String input = "";
 
   @override
@@ -114,12 +116,27 @@ class _CastDownloaderState extends State<CastDownloader> {
             children: [
               Expanded(
                   child: TextField(
-                      maxLines: null, onChanged: (s) => this.input = s.trim())),
+                controller: this.textEditingContoller,
+                maxLines: null,
+                onChanged: (s) => this.setState(() => this.input = s.trim()),
+                decoration: InputDecoration(
+                  hintText: 'URL',
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      this.textEditingContoller.clear();
+                      this.setState(() {
+                        this.input = "";
+                      });
+                    },
+                    icon: Icon(Icons.clear),
+                  ),
+                ),
+              )),
               SizedBox(width: 20),
               OutlinedButton(
                   child: Text("Download"),
-                  onPressed: (this.isDownloading ==
-                          _DownloadProgress.inProgress)
+                  onPressed: (this.input.isEmpty ||
+                          (this.isDownloading == _DownloadProgress.inProgress))
                       ? null
                       : () async {
                           this.setState(() => this.isDownloading =
@@ -141,6 +158,7 @@ class _CastDownloaderState extends State<CastDownloader> {
                         }),
             ],
           ),
+          SizedBox(height: 20),
           if (this.isDownloading == _DownloadProgress.inProgress)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
