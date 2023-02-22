@@ -95,9 +95,14 @@ class _PlayController extends StatefulWidget {
   State<_PlayController> createState() => _PlayControllerState();
 }
 
-class _PlayControllerState extends State<_PlayController> {
+class _PlayControllerState extends State<_PlayController>
+    with AutomaticKeepAliveClientMixin {
   late final Timer timer;
   final updateIntervalSec = 1;
+
+  //for `AutomaticKeepAliveClientMixin`
+  @override
+  bool wantKeepAlive = true;
 
   @override
   void initState() {
@@ -109,6 +114,8 @@ class _PlayControllerState extends State<_PlayController> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); //for `AutomaticKeepAliveClientMixin`
+
     final p = Provider.of<_Player>(context, listen: false);
 
     if (p.lastSetFile == null) {
