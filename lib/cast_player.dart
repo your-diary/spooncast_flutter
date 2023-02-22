@@ -34,7 +34,7 @@ class CastPlayer extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(height: 10),
-          Expanded(child: CastListView()),
+          Expanded(child: _CastListView()),
           Expanded(
             child: _PlayController(),
           ),
@@ -46,30 +46,88 @@ class CastPlayer extends StatelessWidget {
 
 /*-------------------------------------*/
 
-class CastListView extends StatelessWidget {
-  const CastListView({
-    super.key,
-  });
+//ignore: must_be_immutable
+class _CastListView extends StatelessWidget {
+  TapDownDetails? tapDownDetails;
+
+  _CastListView();
+
+  void deleteHandler(
+      BuildContext context, CastList castList, CastInfo castInfo) {
+    //HACK: This use of `Future` is a hack.
+    //ref: |https://stackoverflow.com/questions/69568862/flutter-showdialog-is-not-shown-on-popupmenuitem-tap|
+    Future.delayed(
+        const Duration(),
+        () => showDialog(
+            context: context,
+            builder: (context) => Dialog(
+                    child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                          "Do you really want to delete `${castInfo.title} / ${castInfo.author}`?"),
+                      SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            child: Text('Yes'),
+                            onPressed: () {
+                              castList.deleteById(castInfo.id);
+                              Navigator.pop(context);
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Cancel'),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ))));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<CastList>(
-      builder: (context, castFiles, child) {
+      builder: (context, castList, child) {
         return ListView(
-            children: castFiles.l.map((CastInfo e) {
-          return Card(
-              child: ListTile(
-                  title: Text(e.title),
-                  trailing: Text(e.author,
-                      style: TextStyle(color: Colors.grey, fontSize: 13)),
-                  onTap: () {
-                    final p = Provider.of<_Player>(context, listen: false);
-                    p.player.setAudioSource(AudioSource.uri(
-                        Uri.file(e.filePath!),
-                        tag: MediaItem(title: e.title, id: e.id)));
-                    p.setLastSetFile(e);
-                    p.player.play();
-                  }));
+            children: castList.l.map((CastInfo e) {
+          return InkWell(
+              child: Card(
+                  child: ListTile(
+                title: Text(e.title),
+                trailing: Text(e.author,
+                    style: TextStyle(color: Colors.grey, fontSize: 13)),
+              )),
+              onTap: () {
+                final p = Provider.of<_Player>(context, listen: false);
+                p.player.setAudioSource(AudioSource.uri(Uri.file(e.filePath!),
+                    tag: MediaItem(title: e.title, id: e.id)));
+                p.setLastSetFile(e);
+                p.player.play();
+              },
+              onTapDown: (details) => this.tapDownDetails = details,
+              onLongPress: () async {
+                final dx = this.tapDownDetails!.globalPosition.dx;
+                final dy = this.tapDownDetails!.globalPosition.dy;
+                await showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(dx, dy, 0, 0),
+                    color: Colors.black45,
+                    items: [
+                      PopupMenuItem(
+                          child: Text("Delete"),
+                          onTap: () => deleteHandler(context, castList, e)),
+                      PopupMenuItem(child: Text("Cancel")),
+                    ]);
+              });
         }).toList());
       },
     );

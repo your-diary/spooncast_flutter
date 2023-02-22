@@ -55,6 +55,15 @@ class CastList extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteById(String id) async {
+    final db = await this._db;
+    await db.delete(CastList.tableName, where: "id = ?", whereArgs: [id]);
+
+    this._l = await this._selectAll();
+
+    notifyListeners();
+  }
+
   Future<List<CastInfo>> _selectAll() async {
     final db = await this._db;
     final List<Map<String, dynamic>> m = await db.query(CastList.tableName);
