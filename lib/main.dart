@@ -39,7 +39,7 @@ class W extends StatelessWidget {
       create: (context) => CastList("main.db"),
       child: DefaultTabController(
         initialIndex: 0,
-        length: 3,
+        length: 2,
         child: Scaffold(
           appBar: AppBar(
             toolbarHeight: 0,
