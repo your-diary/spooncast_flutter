@@ -134,14 +134,29 @@ class _PlayControllerState extends State<_PlayController>
       playerState = _PlayerState.playing;
     }
 
+    final progressBarWidth = 350.0;
+
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
         children: [
           Text(p.lastSetFile!),
           SizedBox(height: 10),
-          LinearProgressIndicator(
-              value: cur.inMilliseconds / total.inMilliseconds),
+          Container(
+            width: progressBarWidth,
+            height: 10,
+            child: InkWell(
+                child: LinearProgressIndicator(
+                    value: cur.inMilliseconds / total.inMilliseconds),
+                onTapDown: (tapUpDetails) {
+                  final dx = tapUpDetails.localPosition.dx;
+                  p.player.seek(Duration(
+                      milliseconds:
+                          (total.inMilliseconds * (dx / progressBarWidth))
+                              .toInt()));
+                  this.setState(() {});
+                }),
+          ),
           SizedBox(height: 10),
           Text("${_prettyPrintDuration(cur)} / ${_prettyPrintDuration(total)}"),
           SizedBox(height: 10),
@@ -178,6 +193,5 @@ class _PlayControllerState extends State<_PlayController>
 //bg再生
 //volume
 //loop
-//seek
 
 /*-------------------------------------*/
