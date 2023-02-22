@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import 'cast_downloader.dart';
 import 'cast_list.dart';
+import 'cast_player.dart';
 
 void main() {
   runApp(const MyApp());
@@ -59,47 +60,13 @@ class W extends StatelessWidget {
           ),
           body: TabBarView(
             children: [
-              Tab1(),
+              CastPlayer(),
               CastDownloader(),
               Tab3(),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class Tab1 extends StatelessWidget {
-  final player = AudioPlayer();
-
-  Tab1({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(child: Consumer<CastList>(
-          builder: (_context, castFiles, _child) {
-            return ListView(
-                children: castFiles.l.map((e) {
-              return Card(
-                  child: ListTile(
-                      title: Text(e.replaceFirst(RegExp(".*/"), "")),
-                      onTap: () {
-                        this.player.setFilePath(e);
-                        this.player.play();
-                      }));
-            }).toList());
-          },
-        )),
-        Expanded(
-          child: TextButton(
-              child: Text("stop"), onPressed: () => this.player.stop()),
-        ),
-      ],
     );
   }
 }
