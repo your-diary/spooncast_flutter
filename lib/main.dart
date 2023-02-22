@@ -1,5 +1,89 @@
 import 'package:flutter/material.dart';
 
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:http/http.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+
+Future<String> getCastID(String shortenURL) async {
+  final client = Client();
+
+  final uri = Uri.parse(shortenURL);
+
+  var req = Request("GET", uri);
+  req.followRedirects = false;
+
+  final res = await client.send(req);
+  client.close();
+  assert(res.isRedirect);
+  assert(res.headers.containsKey("location"));
+
+  return RegExp(r"https://spooncast.net/jp/cast/(\d+)")
+      .firstMatch(res.headers["location"]!)!
+      .group(1)!;
+}
+
+class CastInfo {
+  final String id;
+  final String author;
+  final String title;
+  final String voiceURL;
+  final String fileExtension;
+
+  CastInfo({
+    required this.id,
+    required this.author,
+    required this.title,
+    required this.voiceURL,
+    required this.fileExtension,
+  });
+
+  @override
+  String toString() {
+    return "CastInfo(id = ${this.id}, author = ${this.author}, title = ${this.title}, voiceURL = ${this.voiceURL}, fileExtension = ${this.fileExtension})";
+  }
+}
+
+Future<CastInfo> getCastInfo(String castID) async {
+  final uri = Uri.parse("https://jp-api.spooncast.net/casts/${castID}/");
+  final res = await get(uri);
+  assert(res.statusCode == 200);
+  final m = jsonDecode(utf8.decode(res.bodyBytes));
+  return CastInfo(
+    id: castID,
+    author: m["results"][0]["author"]["nickname"],
+    title: m["results"][0]["title"],
+    voiceURL: m["results"][0]["voice_url"],
+    fileExtension:
+        m["results"][0]["voice_url"].replaceFirst(RegExp(r".*\."), ""),
+  );
+}
+
+Future<void> downloadCast(CastInfo castInfo) async {
+  final uri = Uri.parse(castInfo.voiceURL);
+  final res = await get(uri);
+  assert(res.statusCode == 200);
+  final appDocDir = (await getApplicationDocumentsDirectory()).path;
+  await File("${appDocDir}/${castInfo.id}.${castInfo.fileExtension}")
+      .writeAsBytes(res.bodyBytes);
+}
+
+//The argument is a shorten URL like "https://u8kv3.app.goo.gl/Q4izq".
+Future<CastInfo> f(String shortenURL) async {
+  final castID = await getCastID(shortenURL);
+  print(castID);
+
+  final castInfo = await getCastInfo(castID);
+  print(castInfo);
+
+  await downloadCast(castInfo);
+
+  return castInfo;
+}
+
 void main() {
   runApp(const MyApp());
 }
@@ -7,109 +91,180 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      theme:
+          ThemeData(brightness: Brightness.dark, primaryColor: Colors.blueGrey),
+      home: W(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class W extends StatelessWidget {
+  const W({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+    return ChangeNotifierProvider(
+      create: (_context) => CastFiles(),
+      child: DefaultTabController(
+        initialIndex: 0,
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            toolbarHeight: 30,
+            title: Text("title"),
+            bottom: TabBar(
+              tabs: [
+                Tab(
+                  icon: Icon(Icons.cloud_outlined),
+                ),
+                Tab(
+                  icon: Icon(Icons.beach_access_sharp),
+                ),
+                Tab(
+                  icon: Icon(Icons.brightness_5_sharp),
+                ),
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+          ),
+          body: TabBarView(
+            children: [
+              Tab1(),
+              Tab2(),
+              Tab3(),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class CastFiles extends ChangeNotifier {
+  List<String> l = [];
+
+  CastFiles() {
+    this.update();
+  }
+
+  Future<void> update() async {
+    final appDocDir = await getApplicationDocumentsDirectory();
+    this.l = appDocDir.listSync().map((e) => e.path).toList();
+    notifyListeners();
+  }
+}
+
+class Tab1 extends StatelessWidget {
+  final player = AudioPlayer();
+
+  Tab1({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(child: Consumer<CastFiles>(
+          builder: (_context, castFiles, _child) {
+            return ListView(
+                children: castFiles.l.map((e) {
+              return Card(
+                  child: ListTile(
+                      title: Text(e.replaceFirst(RegExp(".*/"), "")),
+                      onTap: () {
+                        this.player.setFilePath(e);
+                        this.player.play();
+                      }));
+            }).toList());
+          },
+        )),
+        Expanded(
+          child: TextButton(
+              child: Text("stop"), onPressed: () => this.player.stop()),
+        ),
+      ],
+    );
+  }
+}
+
+class Tab2 extends StatefulWidget {
+  const Tab2({
+    super.key,
+  });
+
+  @override
+  State<Tab2> createState() => _Tab2State();
+}
+
+enum DownloadProgress { notInProgress, inProgress, completed, failed }
+
+class _Tab2State extends State<Tab2> {
+  DownloadProgress isDownloading = DownloadProgress.notInProgress;
+  String input = "";
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              Expanded(
+                  child: TextField(
+                      maxLines: null, onChanged: (s) => this.input = s.trim())),
+              SizedBox(width: 20),
+              OutlinedButton(
+                  child: Text("Download"),
+                  onPressed: (this.isDownloading == DownloadProgress.inProgress)
+                      ? null
+                      : () async {
+                          this.setState(() =>
+                              this.isDownloading = DownloadProgress.inProgress);
+                          try {
+                            await f(this.input);
+                            await Provider.of<CastFiles>(context, listen: false)
+                                .update();
+                            this.setState(() => this.isDownloading =
+                                DownloadProgress.completed);
+                          } catch (e) {
+                            debugPrint(e.toString());
+                            this.setState(() =>
+                                this.isDownloading = DownloadProgress.failed);
+                          }
+                        }),
+            ],
+          ),
+        ),
+        if (this.isDownloading == DownloadProgress.inProgress)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text("Downloading..."),
+            ],
+          ),
+        if (this.isDownloading == DownloadProgress.completed) Text("Done."),
+        if (this.isDownloading == DownloadProgress.failed) Text("Failed."),
+      ],
+    );
+  }
+}
+
+class Tab3 extends StatelessWidget {
+  const Tab3({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text("settings"),
     );
   }
 }
