@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
 import 'cast_list.dart';
@@ -55,12 +56,14 @@ class CastListView extends StatelessWidget {
       builder: (_context, castFiles, _child) {
         return ListView(
             children: castFiles.l.map((e) {
+          final baseName = e.replaceFirst(RegExp(".*/"), "");
           return Card(
               child: ListTile(
-                  title: Text(e.replaceFirst(RegExp(".*/"), "")),
+                  title: Text(baseName),
                   onTap: () {
                     final p = Provider.of<_Player>(context, listen: false);
-                    p.player.setFilePath(e);
+                    p.player.setAudioSource(AudioSource.uri(Uri.file(e),
+                        tag: MediaItem(title: baseName, id: e)));
                     p.setLastSetFile(e);
                     p.player.play();
                   }));
@@ -118,7 +121,7 @@ class _PlayControllerState extends State<_PlayController>
 
     final p = Provider.of<_Player>(context, listen: false);
 
-    if (p.lastSetFile == null) {
+    if (p.lastSetFile == null || p.player.duration == null) {
       return Text("Not playing.");
     }
 
@@ -190,7 +193,6 @@ class _PlayControllerState extends State<_PlayController>
   }
 }
 
-//bg再生
 //volume
 //loop
 

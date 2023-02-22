@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +13,13 @@ import 'cast_downloader.dart';
 import 'cast_list.dart';
 import 'cast_player.dart';
 
-void main() {
+void main() async {
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
+
   runApp(const MyApp());
 }
 
