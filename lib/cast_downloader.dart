@@ -134,7 +134,7 @@ class _CastDownloaderState extends State<CastDownloader> {
                   //The reason is when you copy a shorten URL from iOS app rather than web version, the copied content consists of a trailing explanation and a URL.
                   //Let user manually extract a URL is tedious, so we automate it.
                   this.input = s.trim();
-                  if (!this.input.isEmpty) {
+                  if (this.input.isNotEmpty) {
                     this.input = this.input.split(RegExp(r"\s")).last;
                   }
                 }),

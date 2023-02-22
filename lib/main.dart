@@ -47,13 +47,10 @@ class W extends StatelessWidget {
             bottom: TabBar(
               tabs: [
                 Tab(
-                  icon: Icon(Icons.playlist_play),
+                  icon: Icon(Icons.play_arrow),
                 ),
                 Tab(
                   icon: Icon(Icons.download),
-                ),
-                Tab(
-                  icon: Icon(Icons.play_arrow),
                 ),
               ],
             ),
@@ -62,24 +59,10 @@ class W extends StatelessWidget {
             children: [
               CastPlayer(),
               CastDownloader(),
-              Tab3(),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class Tab3 extends StatelessWidget {
-  const Tab3({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("settings"),
     );
   }
 }
