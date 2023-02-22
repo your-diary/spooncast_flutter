@@ -1,16 +1,13 @@
 # spooncast_flutter
 
-A new Flutter project.
+A helper application for [Spoon](https://www.spooncast.net/jp/live).
 
-## Getting Started
+- cross-platform (written in Flutter)
 
-This project is a starting point for a Flutter application.
+- [*cast*](https://www.spooncast.net/jp/cast) downloader
 
-A few resources to get you started if this is your first Flutter project:
+- cast player
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+| <img height='600px' src='./readme_assets/2.png'> | <img height='600px' src='./readme_assets/3.png'> | <img height='600px' src='./readme_assets/1.png'> |
+|:-|:-|:-|
+| Cast Player | Controller<br>(lock screen) | Cast Downloader |
