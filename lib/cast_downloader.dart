@@ -97,10 +97,10 @@ class CastDownloader extends StatefulWidget {
   State<CastDownloader> createState() => _CastDownloaderState();
 }
 
-enum DownloadProgress { notInProgress, inProgress, completed, failed }
+enum _DownloadProgress { notInProgress, inProgress, completed, failed }
 
 class _CastDownloaderState extends State<CastDownloader> {
-  DownloadProgress isDownloading = DownloadProgress.notInProgress;
+  _DownloadProgress isDownloading = _DownloadProgress.notInProgress;
   String input = "";
 
   @override
@@ -129,26 +129,27 @@ class _CastDownloaderState extends State<CastDownloader> {
               SizedBox(width: 20),
               OutlinedButton(
                   child: Text("Download"),
-                  onPressed: (this.isDownloading == DownloadProgress.inProgress)
+                  onPressed: (this.isDownloading ==
+                          _DownloadProgress.inProgress)
                       ? null
                       : () async {
-                          this.setState(() =>
-                              this.isDownloading = DownloadProgress.inProgress);
+                          this.setState(() => this.isDownloading =
+                              _DownloadProgress.inProgress);
                           try {
                             await _downloadCastFromURL(this.input);
                             await Provider.of<CastList>(context, listen: false)
                                 .update();
                             this.setState(() => this.isDownloading =
-                                DownloadProgress.completed);
+                                _DownloadProgress.completed);
                           } catch (e) {
                             debugPrint(e.toString());
                             this.setState(() =>
-                                this.isDownloading = DownloadProgress.failed);
+                                this.isDownloading = _DownloadProgress.failed);
                           }
                         }),
             ],
           ),
-          if (this.isDownloading == DownloadProgress.inProgress)
+          if (this.isDownloading == _DownloadProgress.inProgress)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -157,8 +158,8 @@ class _CastDownloaderState extends State<CastDownloader> {
                 Text("Downloading..."),
               ],
             ),
-          if (this.isDownloading == DownloadProgress.completed) Text("Done."),
-          if (this.isDownloading == DownloadProgress.failed) Text("Failed."),
+          if (this.isDownloading == _DownloadProgress.completed) Text("Done."),
+          if (this.isDownloading == _DownloadProgress.failed) Text("Failed."),
         ],
       ),
     );
