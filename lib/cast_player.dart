@@ -12,10 +12,10 @@ import 'cast_list.dart';
 
 class _Player extends ChangeNotifier {
   final player = AudioPlayer();
-  String? lastSetFile;
+  CastInfo? lastSetFile;
 
-  void setLastSetFile(String s) {
-    this.lastSetFile = s.replaceFirst(RegExp(r".*/"), "");
+  void setLastSetFile(CastInfo castInfo) {
+    this.lastSetFile = castInfo;
     notifyListeners();
   }
 }
@@ -68,7 +68,7 @@ class CastListView extends StatelessWidget {
                     p.player.setAudioSource(AudioSource.uri(
                         Uri.file(e.filePath!),
                         tag: MediaItem(title: e.title, id: e.id)));
-                    p.setLastSetFile(e.filePath!);
+                    p.setLastSetFile(e);
                     p.player.play();
                   }));
         }).toList());
@@ -147,7 +147,8 @@ class _PlayControllerState extends State<_PlayController>
       padding: const EdgeInsets.all(10),
       child: Column(
         children: [
-          Text(p.lastSetFile!),
+          Text(p.lastSetFile!.title),
+          Text(p.lastSetFile!.author),
           SizedBox(height: 10),
           Container(
             width: progressBarWidth,
