@@ -3,8 +3,9 @@ class CastInfo {
   final String author;
   final String title;
   final String voiceURL;
-  final String fileExtension;
+  final String imgURL;
   String? filePath;
+  String? imgPath;
   final DateTime downloadedDate;
 
   CastInfo({
@@ -12,13 +13,13 @@ class CastInfo {
     required this.author,
     required this.title,
     required this.voiceURL,
-    required this.fileExtension,
+    required this.imgURL,
     required this.downloadedDate,
   });
 
   @override
   String toString() {
-    return "CastInfo(id = ${this.id}, author = ${this.author}, title = ${this.title}, voiceURL = ${this.voiceURL}, fileExtension = ${this.fileExtension}, filePath = ${this.filePath}, downloadedDate = ${this.downloadedDate})";
+    return "CastInfo(id = ${this.id}, author = ${this.author}, title = ${this.title}, voiceURL = ${this.voiceURL}, imgURL: ${this.imgURL}, filePath = ${this.filePath}, imgPath = ${this.imgPath}, downloadedDate = ${this.downloadedDate})";
   }
 
   Map<String, dynamic> toMap() {
@@ -27,8 +28,9 @@ class CastInfo {
       "author": this.author,
       "title": this.title,
       "voiceURL": this.voiceURL,
-      "fileExtension": this.fileExtension,
+      "imgURL": this.imgURL,
       "filePath": this.filePath,
+      "imgPath": this.imgPath,
       "downloadedDate": this.downloadedDate.toString(),
     };
   }

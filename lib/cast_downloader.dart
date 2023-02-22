@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -39,8 +40,7 @@ Future<CastInfo> _getCastInfo(String castID) async {
     author: m["results"][0]["author"]["nickname"],
     title: m["results"][0]["title"],
     voiceURL: m["results"][0]["voice_url"],
-    fileExtension:
-        m["results"][0]["voice_url"].replaceFirst(RegExp(r".*\."), ""),
+    imgURL: m["results"][0]["img_url"],
     downloadedDate: DateTime.now(),
   );
 }
@@ -50,7 +50,17 @@ Future<String> _downloadCast(CastInfo castInfo) async {
   final res = await get(uri);
   assert(res.statusCode == 200);
   final appDocDir = (await getApplicationDocumentsDirectory()).path;
-  final path = "${appDocDir}/${castInfo.id}.${castInfo.fileExtension}";
+  final path = "${appDocDir}/${castInfo.id}.${extension(castInfo.voiceURL)}";
+  await File(path).writeAsBytes(res.bodyBytes);
+  return path;
+}
+
+Future<String> _downloadImg(CastInfo castInfo) async {
+  final uri = Uri.parse(castInfo.imgURL);
+  final res = await get(uri);
+  assert(res.statusCode == 200);
+  final appDocDir = (await getApplicationDocumentsDirectory()).path;
+  final path = "${appDocDir}/${castInfo.id}.${extension(castInfo.imgURL)}";
   await File(path).writeAsBytes(res.bodyBytes);
   return path;
 }
@@ -67,9 +77,9 @@ Future<CastInfo> _downloadCastFromURL(String shortenURL) async {
   final castInfo = await _getCastInfo(castID);
   debugPrint(castInfo.toString());
 
-  final filePath = await _downloadCast(castInfo);
+  castInfo.filePath = await _downloadCast(castInfo);
+  castInfo.imgPath = await _downloadImg(castInfo);
 
-  castInfo.filePath = filePath;
   return castInfo;
 }
 

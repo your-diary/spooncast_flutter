@@ -31,8 +31,9 @@ class CastList extends ChangeNotifier {
                 author         TEXT,
                 title          TEXT,
                 voiceURL       TEXT,
-                fileExtension  TEXT,
+                imgURL         TEXT,
                 filePath       TEXT,
+                imgPath        TEXT,
                 downloadedDate REAL
             )
           ''',
@@ -73,10 +74,11 @@ class CastList extends ChangeNotifier {
         author: m["author"],
         title: m["title"],
         voiceURL: m["voiceURL"],
-        fileExtension: m["fileExtension"],
+        imgURL: m["imgURL"],
         downloadedDate: DateTime.parse(m["downloadedDate"]),
       );
       castInfo.filePath = m["filePath"];
+      castInfo.imgPath = m["imgPath"];
       return castInfo;
     }).toList();
   }

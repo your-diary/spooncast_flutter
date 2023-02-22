@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -35,9 +36,9 @@ class CastPlayer extends StatelessWidget {
         children: [
           SizedBox(height: 10),
           Expanded(child: _CastListView()),
-          Expanded(
-            child: _PlayController(),
-          ),
+          Divider(),
+          _PlayController(),
+          SizedBox(height: 30),
         ],
       ),
     );
@@ -102,6 +103,10 @@ class _CastListView extends StatelessWidget {
           return InkWell(
               child: Card(
                   child: ListTile(
+                leading: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: ClipRRect(child: Image.file(File(e.imgPath!))),
+                ),
                 title: Text(e.title),
                 trailing: Text(e.author,
                     style: TextStyle(color: Colors.grey, fontSize: 13)),
@@ -109,7 +114,10 @@ class _CastListView extends StatelessWidget {
               onTap: () {
                 final p = Provider.of<_Player>(context, listen: false);
                 p.player.setAudioSource(AudioSource.uri(Uri.file(e.filePath!),
-                    tag: MediaItem(title: e.title, id: e.id)));
+                    tag: MediaItem(
+                        title: e.title,
+                        id: e.id,
+                        artUri: Uri.file(e.imgPath!))));
                 p.setLastSetFile(e);
                 p.player.play();
               },
@@ -203,6 +211,11 @@ class _PlayControllerState extends State<_PlayController>
       padding: const EdgeInsets.all(10),
       child: Column(
         children: [
+          SizedBox(
+              width: progressBarWidth * 0.7,
+              height: progressBarWidth * 0.7,
+              child: Image.file(File(p.lastSetFile!.imgPath!))),
+          SizedBox(height: 10),
           Text(p.lastSetFile!.title),
           Text(p.lastSetFile!.author),
           SizedBox(height: 10),
