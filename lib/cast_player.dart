@@ -163,37 +163,57 @@ class _PlayControllerState extends State<_PlayController>
           SizedBox(height: 10),
           Text("${_prettyPrintDuration(cur)} / ${_prettyPrintDuration(total)}"),
           SizedBox(height: 10),
-          if (playerState == _PlayerState.playing)
-            IconButton(
-                icon: Icon(Icons.pause),
-                onPressed: () async {
-                  await p.player.pause();
-                  this.setState(() {});
-                })
-          else if (playerState == _PlayerState.completed)
-            IconButton(
-                icon: Icon(Icons.play_arrow),
-                onPressed: () async {
-                  p.player.seek(Duration.zero);
-                  p.player.play();
-                  this.setState(() {});
-                })
-          else if (playerState == _PlayerState.paused)
-            IconButton(
-                icon: Icon(Icons.play_arrow),
-                onPressed: () async {
-                  p.player.play();
-                  this.setState(() {});
-                })
-          else
-            throw UnimplementedError()
+          Row(children: [
+            Expanded(
+                child: Opacity(
+              opacity: (p.player.loopMode == LoopMode.off) ? 0.3 : 1.0,
+              child: IconButton(
+                  icon: Icon(Icons.loop),
+                  onPressed: () async {
+                    if (p.player.loopMode == LoopMode.off) {
+                      await p.player.setLoopMode(LoopMode.one);
+                    } else {
+                      await p.player.setLoopMode(LoopMode.off);
+                    }
+                    this.setState(() {});
+                  }),
+            )),
+            if (playerState == _PlayerState.playing)
+              Expanded(
+                child: IconButton(
+                    icon: Icon(Icons.pause),
+                    onPressed: () async {
+                      await p.player.pause();
+                      this.setState(() {});
+                    }),
+              )
+            else if (playerState == _PlayerState.completed)
+              Expanded(
+                child: IconButton(
+                    icon: Icon(Icons.play_arrow),
+                    onPressed: () async {
+                      p.player.seek(Duration.zero);
+                      p.player.play();
+                      this.setState(() {});
+                    }),
+              )
+            else if (playerState == _PlayerState.paused)
+              Expanded(
+                child: IconButton(
+                    icon: Icon(Icons.play_arrow),
+                    onPressed: () async {
+                      p.player.play();
+                      this.setState(() {});
+                    }),
+              )
+            else
+              throw UnimplementedError(),
+            Spacer(),
+          ]),
         ],
       ),
     );
   }
 }
-
-//volume
-//loop
 
 /*-------------------------------------*/
