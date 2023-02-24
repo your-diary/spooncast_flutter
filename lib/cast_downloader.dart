@@ -189,9 +189,10 @@ class _CastDownloaderState extends State<CastDownloader> {
                 SizedBox(width: 20),
                 Text("Downloading..."),
               ],
-            ),
-          if (this.isDownloading == _DownloadProgress.completed) Text("Done."),
-          if (this.isDownloading == _DownloadProgress.failed)
+            )
+          else if (this.isDownloading == _DownloadProgress.completed)
+            Text("Done.")
+          else if (this.isDownloading == _DownloadProgress.failed)
             Text("Failed: ${this.failureReason}"),
         ],
       ),

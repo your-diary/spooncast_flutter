@@ -24,19 +24,21 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme:
           ThemeData(brightness: Brightness.dark, primaryColor: Colors.blueGrey),
-      home: W(),
+      home: Home(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class W extends StatelessWidget {
-  const W({super.key});
+class Home extends StatelessWidget {
+  static const database = "main.db";
+
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => CastList("main.db"),
+      create: (context) => CastList(Home.database),
       child: DefaultTabController(
         initialIndex: 0,
         length: 2,

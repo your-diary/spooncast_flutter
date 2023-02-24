@@ -36,7 +36,7 @@ class CastPlayer extends StatelessWidget {
         children: [
           SizedBox(height: 10),
           Expanded(child: _CastListView()),
-          Divider(),
+          Divider(thickness: 2),
           _PlayController(),
           SizedBox(height: 30),
         ],
@@ -49,7 +49,7 @@ class CastPlayer extends StatelessWidget {
 
 //ignore: must_be_immutable
 class _CastListView extends StatelessWidget {
-  TapDownDetails? tapDownDetails;
+  Offset? tapDownPosition;
 
   _CastListView();
 
@@ -122,10 +122,11 @@ class _CastListView extends StatelessWidget {
                 p.setLastSetFile(e);
                 p.player.play();
               },
-              onTapDown: (details) => this.tapDownDetails = details,
+              onTapDown: (details) =>
+                  this.tapDownPosition = details.globalPosition,
               onLongPress: () async {
-                final dx = this.tapDownDetails!.globalPosition.dx;
-                final dy = this.tapDownDetails!.globalPosition.dy;
+                final dx = this.tapDownPosition!.dx;
+                final dy = this.tapDownPosition!.dy;
                 await showMenu(
                     context: context,
                     position: RelativeRect.fromLTRB(dx, dy, dx, dy),
@@ -169,7 +170,7 @@ class _PlayController extends StatefulWidget {
 class _PlayControllerState extends State<_PlayController>
     with AutomaticKeepAliveClientMixin {
   late final Timer timer;
-  final updateIntervalSec = 1;
+  static const updateIntervalSec = 1;
 
   //for `AutomaticKeepAliveClientMixin`
   @override
@@ -178,8 +179,8 @@ class _PlayControllerState extends State<_PlayController>
   @override
   void initState() {
     super.initState();
-    this.timer =
-        Timer.periodic(Duration(seconds: this.updateIntervalSec), (Timer t) {
+    this.timer = Timer.periodic(
+        Duration(seconds: _PlayControllerState.updateIntervalSec), (Timer t) {
       this.setState(() {});
     });
   }
