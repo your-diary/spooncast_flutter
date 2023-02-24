@@ -74,16 +74,17 @@ class _CastListView extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          TextButton(
-                            child: Text('Yes'),
+                          OutlinedButton(
+                            child: Text('Cancel'),
                             onPressed: () {
-                              castList.deleteById(castInfo.id);
                               Navigator.pop(context);
                             },
                           ),
-                          TextButton(
-                            child: Text('Cancel'),
+                          SizedBox(width: 20),
+                          OutlinedButton(
+                            child: Text('Yes'),
                             onPressed: () {
+                              castList.deleteById(castInfo.id);
                               Navigator.pop(context);
                             },
                           ),
@@ -127,8 +128,8 @@ class _CastListView extends StatelessWidget {
                 final dy = this.tapDownDetails!.globalPosition.dy;
                 await showMenu(
                     context: context,
-                    position: RelativeRect.fromLTRB(dx, dy, 0, 0),
-                    color: Colors.black45,
+                    position: RelativeRect.fromLTRB(dx, dy, dx, dy),
+                    color: Color.fromRGBO(90, 90, 90, 1),
                     items: [
                       PopupMenuItem(
                           child: Text("Delete"),
@@ -224,7 +225,9 @@ class _PlayControllerState extends State<_PlayController>
             height: 10,
             child: InkWell(
                 child: LinearProgressIndicator(
-                    value: cur.inMilliseconds / total.inMilliseconds),
+                  value: cur.inMilliseconds / total.inMilliseconds,
+                  color: Color.fromRGBO(200, 200, 200, 1),
+                ),
                 onTapDown: (tapUpDetails) {
                   final dx = tapUpDetails.localPosition.dx;
                   p.player.seek(Duration(
@@ -246,22 +249,8 @@ class _PlayControllerState extends State<_PlayController>
                   onPressed: () async {
                     if (p.player.loopMode == LoopMode.off) {
                       await p.player.setLoopMode(LoopMode.one);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text("Enabled loop playback.",
-                                style: TextStyle(color: Colors.black)),
-                            backgroundColor: Colors.grey,
-                            duration: Duration(seconds: 1)));
-                      }
                     } else {
                       await p.player.setLoopMode(LoopMode.off);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text("Disabled loop playback.",
-                                style: TextStyle(color: Colors.black)),
-                            backgroundColor: Colors.grey,
-                            duration: Duration(seconds: 1)));
-                      }
                     }
                     this.setState(() {});
                   }),

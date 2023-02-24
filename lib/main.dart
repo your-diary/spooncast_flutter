@@ -43,7 +43,6 @@ class W extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             toolbarHeight: 0,
-            // title: Text("title"),
             bottom: TabBar(
               tabs: [
                 Tab(
@@ -56,6 +55,7 @@ class W extends StatelessWidget {
             ),
           ),
           body: TabBarView(
+            physics: NeverScrollableScrollPhysics(),
             children: [
               CastPlayer(),
               CastDownloader(),
